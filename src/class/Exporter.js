@@ -3,6 +3,7 @@
 const AbstractSyntaxTree = require('abstract-syntax-tree')
 const isDefineWithExports = require('../lib/isDefineWithExports')
 const isExportsMemberExpression = require('../lib/isExportsMemberExpression')
+const {SAP_UI_DEFINE} = require('../utilities/consts');
 
 module.exports = class Exporter extends AbstractSyntaxTree {
   constructor (source, options) {
@@ -11,7 +12,7 @@ module.exports = class Exporter extends AbstractSyntaxTree {
   }
 
   harvest () {
-    const node = this.first('CallExpression[callee.name="define"]')
+    const node = this.first(SAP_UI_DEFINE)
     if (!isDefineWithExports(node)) { return [] }
     return this.getExports()
   }

@@ -11,6 +11,7 @@ const isRequireSugarVariableDeclaratorWithMemberExpression = require('../lib/isR
 const isRequireMemberCallExpression = require('../lib/isRequireMemberCallExpression')
 const isRequireMemberExpressionAssignment = require('../lib/isRequireMemberExpressionAssignment')
 const isRequireReturnStatement = require('../lib/isRequireReturnStatement')
+const {SAP_UI_DEFINE} = require('../utilities/consts');
 
 module.exports = class Importer extends AbstractSyntaxTree {
   constructor (source, options) {
@@ -19,7 +20,7 @@ module.exports = class Importer extends AbstractSyntaxTree {
   }
 
   harvest () {
-    const node = this.first('CallExpression[callee.name="define"]')
+    const node = this.first(SAP_UI_DEFINE)
     if (!isDefineWithDependencies(node)) { return [] }
     return this.getDefineDependencies(node).concat(
       this.getRequireSugarDependencies()

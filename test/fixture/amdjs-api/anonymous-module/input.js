@@ -1,4 +1,4 @@
-define(["alpha"], function (alpha) {
+sap.ui.define(["alpha"], function (alpha) {
   return {
     verb: function(){
       return alpha.verb() + 2;

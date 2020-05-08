@@ -1,7 +1,7 @@
 {
-  "name": "@buxlabs/amd-to-es6",
+  "name": "@ui5/to-es6",
   "version": "0.15.0",
-  "description": "convert amd to es6",
+  "description": "convert ui5 to es6",
   "main": "index.js",
   "scripts": {
     "test": "ava test/spec/convert.js test/spec/class/Analyzer.js test/spec/bin/cli.js",
@@ -9,7 +9,7 @@
     "lint": "echo todo"
   },
   "bin": {
-    "amdtoes6": "./bin/cli.js"
+    "ui5toes6": "./bin/cli.js"
   },
   "engines": {
     "node": ">=8.11.4"

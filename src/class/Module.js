@@ -10,6 +10,7 @@ const changeReturnToExportDefaultDeclaration = require('../lib/changeReturnToExp
 const Analyzer = require('./Analyzer')
 const Importer = require('./Importer')
 const Exporter = require('./Exporter')
+const {SAP_UI_DEFINE} = require('../utilities/consts');
 
 function getImmediatelyInvokedFunctionExpression (body) {
   return {
@@ -43,7 +44,7 @@ class Module extends AbstractSyntaxTree {
   }
 
   convert (options) {
-    const define = this.first('CallExpression[callee.name=define]')
+    const define = this.first(SAP_UI_DEFINE)
     if (isDefineWithObjectExpression(define)) {
       this._tree.body = [{
         type: 'ExportDefaultDeclaration',
@@ -55,6 +56,9 @@ class Module extends AbstractSyntaxTree {
       const exports = this.exporter.harvest()
       const body = this.getBody(define)
       const code = this.getCode(body, options)
+      if (options.id) {
+        this.addSapUiPredefineCalls(code, options.id);
+      }
       this._tree.body = imports.concat(code, exports)
       this.clean()
     }
@@ -147,6 +151,89 @@ class Module extends AbstractSyntaxTree {
       return args.body.body
     }
     return [{ type: 'ExportDefaultDeclaration', declaration: args.body }]
+  }
+
+  addSapUiPredefineCalls (code, id) {
+    const additionalNodes = [];
+    code.forEach((node) => {
+
+      if (node.type === "ExportNamedDeclaration") {
+        // TODO
+        return;
+      } else if (node.type === "ExportDefaultDeclaration") {
+        additionalNodes.push({
+          type: "VariableDeclaration",
+          kind: "const",
+          declarations: [
+            {
+              type: "VariableDeclarator",
+              init: node.declaration,
+              id: {
+                type: "Identifier",
+                name: "defaultExport"
+              }
+            }
+          ]
+        });
+        additionalNodes.push({
+          type: "ExpressionStatement",
+          expression: {
+            type: "CallExpression",
+            callee: {
+              type: "MemberExpression",
+              object: {
+                type: "MemberExpression",
+                object: {
+                  type: "Identifier",
+                  name: "sap"
+                },
+                computed: false,
+                property: {
+                  type: "Identifier",
+                  name: "ui"
+                }
+              },
+              computed: false,
+              property: {
+                type: "Identifier",
+                name: "predefine"
+              }
+            },
+            arguments: [
+              {
+                type: "Literal",
+                value: id
+              },
+              {
+                type: "FunctionExpression",
+                params: [],
+                body: {
+                  type: "BlockStatement",
+                  body: [
+                    {
+                      type: "ReturnStatement",
+                      argument: {
+                        type: "Identifier",
+                        name: "defaultExport"
+                      }
+                    }
+                  ]
+                },
+                async: false,
+                generator: false,
+                expression: false,
+                id: null
+              }
+            ]
+          }
+        });
+        node.declaration = {
+          type: "Identifier",
+          name: "defaultExport"
+        };
+      };
+    });
+    code.unshift(...additionalNodes);
   }
 
   getCode (body, options) {
