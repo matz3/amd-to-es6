@@ -56,7 +56,7 @@ class Module extends AbstractSyntaxTree {
       const exports = this.exporter.harvest()
       const body = this.getBody(define)
       const code = this.getCode(body, options)
-      if (options.id) {
+      if (options.id && options.predefine !== false) {
         this.addSapUiPredefineCalls(code, options.id);
       }
       this._tree.body = imports.concat(code, exports)
