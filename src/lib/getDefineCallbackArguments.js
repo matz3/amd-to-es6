@@ -4,7 +4,6 @@ module.exports = function (node) {
   const args = node.arguments;
   for (let i = args.length - 1; i >= 0; i--) {
     const arg = args[i];
-    console.log(arg);
     if (arg.type === "FunctionExpression") {
       return arg;
     }
